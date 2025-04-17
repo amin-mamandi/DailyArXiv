@@ -14,11 +14,11 @@ def remove_duplicated_spaces(text: str) -> str:
     return " ".join(text.split())
 
 def request_paper_with_arXiv_api(keyword: str, max_results: int, link: str = "OR") -> List[Dict[str, str]]:
-    # keyword = keyword.replace(" ", "+")
     assert link in ["OR", "AND"], "link should be 'OR' or 'AND'"
-    keyword = "\"" + keyword + "\""
-    url = "http://export.arxiv.org/api/query?search_query=ti:{0}+{2}+abs:{0}&max_results={1}&sortBy=lastUpdatedDate".format(keyword, max_results, link)
+    keyword_encoded = keyword.replace(" ", "+")  # e.g. "Computer Architecture" → "Computer+Architecture"
+    url = f"http://export.arxiv.org/api/query?search_query=ti:{keyword_encoded}+{link}+abs:{keyword_encoded}&max_results={max_results}&sortBy=lastUpdatedDate"
     url = urllib.parse.quote(url, safe="%/:=&?~#+!$,;'@()*[]")
+    print(f"[DEBUG] URL: {url}")  # Optional: check what's being sent
     response = urllib.request.urlopen(url).read().decode('utf-8')
     feed = feedparser.parse(response)
 
@@ -141,7 +141,7 @@ def remove_backups():
     os.remove(".github/ISSUE_TEMPLATE.md.bk")
 
 def get_daily_date():
-    # get beijing time in the format of "March 1, 2021"
-    beijing_timezone = pytz.timezone('Asia/Shanghai')
-    today = datetime.datetime.now(beijing_timezone)
+    # get chicago time in the format of "March 1, 2021"
+    chicago_timezone = pytz.timezone('America/Chicago')
+    today = datetime.datetime.now(chicago_timezone)
     return today.strftime("%B %d, %Y")
